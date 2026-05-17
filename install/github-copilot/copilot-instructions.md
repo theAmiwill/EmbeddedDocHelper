@@ -1,0 +1,15 @@
+# Repository Instructions
+
+This repository may use EmbeddedDocHelper for vehicle embedded engineering document work.
+
+When asked about schematics, chip manuals, datasheets, reference manuals, Excel attachments, BSW, MCAL, driver bring-up, board bring-up, pins, registers, or peripheral configuration:
+
+- Prefer source-backed answers over memory or guesses.
+- Use `.vehicle-embedded-docs/` as the project-local document memory when it exists.
+- If `.vehicle-embedded-docs/` is missing, propose creating it before answering broad document navigation questions.
+- Cite evidence with file path, PDF page or schematic sheet, and Excel sheet/row/column where applicable.
+- Separate facts from inference.
+- Treat new relationships as candidate links until verified by source evidence and explicit user approval.
+- For engineering conclusions, answer with conclusion, evidence, reasoning, short beginner explanation, uncertainty, and next checks.
+
+Do not commit `.vehicle-embedded-docs/`; it is local memory and should be ignored by Git.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vehicle Embedded Doc Curator"
+  short_description: "Evolve embedded doc memory safely"
+  default_prompt: "Use vehicle-embedded-doc-curator to answer an engineering question from .vehicle-embedded-docs/, update cross references, and record verified feature knowledge."

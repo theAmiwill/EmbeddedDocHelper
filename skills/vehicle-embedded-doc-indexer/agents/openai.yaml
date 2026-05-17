@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vehicle Embedded Doc Indexer"
+  short_description: "Index embedded docs into local memory"
+  default_prompt: "Use vehicle-embedded-doc-indexer to create or refresh .vehicle-embedded-docs/ from the project schematics, chip manuals, datasheets, and attachments."
