@@ -41,10 +41,10 @@ Claude Code personal skills live under `~/.claude/skills/<skill-name>/SKILL.md`.
 or ask naturally:
 
 ```text
-Index the schematics, chip manual, and Excel attachments for this embedded project.
+Index this embedded project with portable hardware/software documents and the explicit code directories I provide.
 ```
 
-Then reuse the generated `.vehicle-embedded-docs/` directory:
+Then reuse the generated `.vehicle-embedded-docs/` directory. `portable/` can be copied to a new project using the same chip/software stack; `project/` should stay project-specific.
 
 ```text
 /vehicle-embedded-doc-curator

@@ -15,10 +15,31 @@ DEFAULT_EXTENSIONS = {
     ".tsv",
     ".md",
     ".txt",
+    ".c",
+    ".h",
+    ".arxml",
+    ".xml",
+    ".cfg",
+    ".ini",
+    ".mak",
+    ".bat",
+    ".ps1",
+    ".yaml",
+    ".yml",
+    ".json",
 }
 
 
-SKIP_DIRS = {".git", ".vehicle-embedded-docs", "node_modules", "__pycache__"}
+SKIP_DIRS = {
+    ".git",
+    ".vehicle-embedded-docs",
+    "node_modules",
+    "__pycache__",
+    "build",
+    "out",
+    "dist",
+    "target",
+}
 
 
 def sha256(path: Path) -> str:

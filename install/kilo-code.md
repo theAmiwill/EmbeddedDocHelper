@@ -37,11 +37,11 @@ Kilo Code also supports project skills under `.kilo/skills/`.
 Ask Kilo Code to use the indexer first:
 
 ```text
-Use vehicle-embedded-doc-indexer to create .vehicle-embedded-docs/ for this project.
+Use vehicle-embedded-doc-indexer to create layered .vehicle-embedded-docs/ for this project, reusing copied portable hardware/software packages when available.
 ```
 
 Then ask targeted questions with the curator:
 
 ```text
-Use vehicle-embedded-doc-curator to locate the CAN0 schematic path and map the evidence to chip manual sections.
+Use vehicle-embedded-doc-curator to locate the CAN0 hardware path, map it to software guide sections, and use code only as project context.
 ```

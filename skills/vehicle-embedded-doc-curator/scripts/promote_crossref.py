@@ -5,6 +5,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
+PROJECT_ONLY_PATTERNS = [
+    r"\bproject/",
+    r"\bcode/",
+    r"\bcode_context_only\b",
+    r"\.arxml\b",
+    r"\.c\b",
+    r"\.h\b",
+    r"\bcurrent project\b",
+    r"\blocal configuration\b",
+]
+
+
 def split_entries(text: str) -> list[str]:
     entries: list[list[str]] = []
     current: list[str] = []
@@ -40,6 +52,10 @@ def has_evidence(entry: str) -> bool:
     return re.search(r"(?m)^\s*evidence:\s*$", entry) is not None or re.search(r"(?m)^\s*evidence:\s*\[.+\]\s*$", entry) is not None
 
 
+def mentions_project_only(entry: str) -> bool:
+    return any(re.search(pattern, entry, re.IGNORECASE) for pattern in PROJECT_ONLY_PATTERNS)
+
+
 def write_entries(path: Path, entries: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if not entries:
@@ -52,12 +68,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Promote a simple candidate cross reference after explicit user approval.")
     parser.add_argument("memory_dir", help=".vehicle-embedded-docs directory")
     parser.add_argument("crossref_id", help="Candidate crossref id")
+    parser.add_argument("--scope", choices=["portable", "project", "legacy"], default="project", help="Crossref scope to promote from")
     parser.add_argument("--approved-by", required=True, help="Name or note for explicit user approval")
     args = parser.parse_args()
 
     memory = Path(args.memory_dir).resolve()
-    candidate_path = memory / "crossrefs" / "candidate-links.yml"
-    verified_path = memory / "crossrefs" / "verified-links.yml"
+    if args.scope == "portable":
+        crossref_dir = memory / "portable" / "crossrefs"
+    elif args.scope == "legacy":
+        crossref_dir = memory / "crossrefs"
+    else:
+        crossref_dir = memory / "project" / "crossrefs"
+    candidate_path = crossref_dir / "candidate-links.yml"
+    verified_path = crossref_dir / "verified-links.yml"
 
     candidate_text = candidate_path.read_text(encoding="utf-8", errors="replace") if candidate_path.exists() else "[]\n"
     verified_text = verified_path.read_text(encoding="utf-8", errors="replace") if verified_path.exists() else "[]\n"
@@ -77,9 +100,12 @@ def main() -> int:
         raise SystemExit(f"candidate not found: {args.crossref_id}")
     if not has_evidence(match):
         raise SystemExit("cannot promote without evidence")
+    if args.scope == "portable" and mentions_project_only(match):
+        raise SystemExit("cannot promote portable crossref that mentions project/code-only material")
 
     now = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     match = replace_or_add(match, "status", "verified")
+    match = replace_or_add(match, "portability", args.scope if args.scope != "legacy" else "project")
     match = replace_or_add(match, "verified_by_user", "true")
     match = replace_or_add(match, "verified_at", f'"{now}"')
     match = replace_or_add(match, "approved_by", f'"{args.approved_by}"')

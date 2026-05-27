@@ -21,7 +21,7 @@ This creates or updates:
 .github/instructions/embedded-doc-helper.instructions.md
 ```
 
-The repository-wide file gives Copilot broad guidance. The path-specific instruction file applies the EmbeddedDocHelper workflow across the repository.
+The repository-wide file gives Copilot broad guidance. The path-specific instruction file applies the EmbeddedDocHelper workflow across the repository, including the portable/project split and the hardware/software/code authority model.
 
 ## Manual Install
 

@@ -5,6 +5,16 @@ from pathlib import Path
 
 
 VALID_STATUSES = {"candidate", "needs-review", "verified", "rejected"}
+PROJECT_ONLY_PATTERNS = [
+    r"\bproject/",
+    r"\bcode/",
+    r"\bcode_context_only\b",
+    r"\.arxml\b",
+    r"\.c\b",
+    r"\.h\b",
+    r"\bcurrent project\b",
+    r"\blocal configuration\b",
+]
 
 
 def split_entries(text: str) -> list[str]:
@@ -34,7 +44,11 @@ def has_evidence(entry: str) -> bool:
     return re.search(r"(?m)^\s*evidence:\s*$", entry) is not None or re.search(r"(?m)^\s*evidence:\s*\[.+\]\s*$", entry) is not None
 
 
-def validate_file(path: Path) -> list[str]:
+def mentions_project_only(entry: str) -> bool:
+    return any(re.search(pattern, entry, re.IGNORECASE) for pattern in PROJECT_ONLY_PATTERNS)
+
+
+def validate_file(path: Path, scope: str) -> list[str]:
     if not path.exists():
         return []
     text = path.read_text(encoding="utf-8", errors="replace")
@@ -43,12 +57,13 @@ def validate_file(path: Path) -> list[str]:
     issues = []
     entries = split_entries(text)
     if not entries:
-        return [f"{path.name}: expected a YAML list"]
+        return [f"{path}: expected a YAML list"]
     for idx, entry in enumerate(entries):
-        prefix = f"{path.name}[{idx}]"
+        prefix = f"{path.relative_to(path.anchor) if path.is_absolute() else path}[{idx}]"
         entry_id = scalar(entry, "id")
         status = scalar(entry, "status")
         relation = scalar(entry, "relation")
+        portability = scalar(entry, "portability")
         if not entry_id:
             issues.append(f"{prefix}: missing id")
         if status not in VALID_STATUSES:
@@ -59,24 +74,48 @@ def validate_file(path: Path) -> list[str]:
             issues.append(f"{prefix}: missing evidence")
         if status == "verified" and scalar(entry, "verified_by_user") != "true":
             issues.append(f"{prefix}: verified entry must have verified_by_user: true")
+        if scope == "portable":
+            if portability and portability != "portable":
+                issues.append(f"{prefix}: portable crossref has portability {portability!r}")
+            if status == "verified" and mentions_project_only(entry):
+                issues.append(f"{prefix}: portable verified entry mentions project/code-only material")
     return issues
+
+
+def crossref_dirs(memory: Path) -> list[tuple[str, Path]]:
+    dirs: list[tuple[str, Path]] = []
+    legacy = memory / "crossrefs"
+    if legacy.exists():
+        dirs.append(("project", legacy))
+    portable = memory / "portable" / "crossrefs"
+    if portable.exists():
+        dirs.append(("portable", portable))
+    project = memory / "project" / "crossrefs"
+    if project.exists():
+        dirs.append(("project", project))
+    return dirs
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate simple cross reference YAML files without external dependencies.")
     parser.add_argument("memory_dir", help=".vehicle-embedded-docs directory")
+    parser.add_argument("--scope", choices=["auto", "portable", "project"], default="auto", help="Validate one scope or auto-detect all scopes")
     args = parser.parse_args()
 
     memory = Path(args.memory_dir).resolve()
-    files = [
-        memory / "crossrefs" / "candidate-links.yml",
-        memory / "crossrefs" / "verified-links.yml",
-        memory / "crossrefs" / "conflicts.yml",
-    ]
+    if args.scope == "auto":
+        dirs = crossref_dirs(memory)
+    else:
+        dirs = [(args.scope, memory / args.scope / "crossrefs")]
+        if args.scope == "portable":
+            dirs = [("portable", memory / "portable" / "crossrefs")]
+        if args.scope == "project":
+            dirs = [("project", memory / "project" / "crossrefs")]
 
     issues = []
-    for path in files:
-        issues.extend(validate_file(path))
+    for scope, directory in dirs:
+        for name in ("candidate-links.yml", "verified-links.yml", "conflicts.yml"):
+            issues.extend(validate_file(directory / name, scope))
 
     if issues:
         for issue in issues:

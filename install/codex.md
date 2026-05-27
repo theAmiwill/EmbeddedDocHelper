@@ -34,14 +34,14 @@ Restart Codex if the skills do not appear immediately.
 
 ## Suggested Use
 
-In a project with schematics/manuals/attachments:
+In a project with hardware documents, software manuals, and optionally explicit demo/current code paths:
 
 ```text
-Use $vehicle-embedded-doc-indexer to index this project’s vehicle embedded documents.
+Use $vehicle-embedded-doc-indexer to create layered .vehicle-embedded-docs/ memory. Reuse any copied portable hardware/software packages before scanning source documents.
 ```
 
 Later, in a new conversation:
 
 ```text
-Use $vehicle-embedded-doc-curator to answer from .vehicle-embedded-docs/.
+Use $vehicle-embedded-doc-curator to answer from .vehicle-embedded-docs/, keeping portable knowledge separate from project code context.
 ```
