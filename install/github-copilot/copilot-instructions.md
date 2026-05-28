@@ -7,6 +7,7 @@ When asked about schematics, chip manuals, datasheets, reference manuals, Excel 
 - Prefer source-backed answers over memory or guesses.
 - Use `.vehicle-embedded-docs/` as the project-local document memory when it exists.
 - Treat `.vehicle-embedded-docs/portable/` as reusable hardware/software knowledge and `.vehicle-embedded-docs/project/` as project schematics, code context, local links, features, and lessons.
+- On first use, create candidate cross references from existing indexes before relying on the memory as complete.
 - If `.vehicle-embedded-docs/` is missing, propose creating it before answering broad document navigation questions.
 - Cite evidence with file path, PDF page or schematic sheet, and Excel sheet/row/column where applicable.
 - Treat hardware documents as the correctness basis, software documents as configuration guides, and code as context-only navigation data.

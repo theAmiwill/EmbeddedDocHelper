@@ -3,7 +3,7 @@
 EmbeddedDocHelper packages two Agent Skills for vehicle embedded engineering document work:
 
 - `vehicle-embedded-doc-indexer`: creates or refreshes layered `.vehicle-embedded-docs/` memory from portable hardware/software documents and explicit project code sources.
-- `vehicle-embedded-doc-curator`: reuses `.vehicle-embedded-docs/` to answer engineering questions, correct stale indexes, maintain evidence-backed portable/project cross references, and write verified feature or lesson notes.
+- `vehicle-embedded-doc-curator`: reuses `.vehicle-embedded-docs/` to bootstrap first-use candidate links, answer engineering questions, correct stale indexes, maintain evidence-backed portable/project cross references, and write verified feature or lesson notes.
 
 The default workflow is engineering-location-first: find the exact page/sheet/table, cite evidence, then add a short beginner explanation.
 
@@ -76,7 +76,7 @@ It also appends this line to the project `.gitignore`:
 .vehicle-embedded-docs/
 ```
 
-The second skill requires that directory to exist. It treats cross references as a lifecycle:
+The second skill requires that directory to exist. On first use, it can generate initial candidate cross references from existing indexes so later questions have a relationship map to verify. It treats cross references as a lifecycle:
 
 ```text
 candidate -> needs-review -> verified -> rejected

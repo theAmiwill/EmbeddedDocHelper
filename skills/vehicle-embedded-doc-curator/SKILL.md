@@ -31,18 +31,24 @@ Use `scripts/find_memory_dir.py <start-path>` to locate the memory directory.
 
 ## Workflow
 
-1. Route the query.
+1. Bootstrap candidate cross references on first use.
+   - If `audit/crossref-bootstrap.yml` is absent, or both portable/project crossref files are empty, generate initial `candidate` cross references from existing indexes before answering.
+   - Prefer `scripts/bootstrap_crossrefs.py <memory-dir>` for a deterministic first pass.
+   - Review generated candidates for obvious false positives; keep them as unverified and low/medium confidence.
+   - See `references/bootstrap-crossrefs.md`.
+
+2. Route the query.
    - Classify the user request as hardware location, signal trace, pin/function lookup, software guide lookup, register/peripheral lookup, attachment/table lookup, code location, MCAL/BSW impact, feature bring-up, or lesson capture.
    - See `references/query-routing.md`.
 
-2. Gather narrow evidence.
+3. Gather narrow evidence.
    - Start from index files.
    - Read portable hardware/software indexes before opening large source files.
    - Read project code indexes only for location and context.
    - Open only relevant PDF pages, manual chapters, Excel sheets, or code excerpts.
    - Do not rescan full manuals unless the index is missing and the user approves a rebuild.
 
-3. Answer with the standard format.
+4. Answer with the standard format.
    - Conclusion
    - Evidence
    - Reasoning
@@ -50,24 +56,24 @@ Use `scripts/find_memory_dir.py <start-path>` to locate the memory directory.
    - Uncertainty
    - Next checks
 
-4. Repair memory when evidence contradicts it.
+5. Repair memory when evidence contradicts it.
    - Correct wrong page ranges, missing sheets, wrong module names, stale source metadata, or mistaken links.
    - Record changes in `audit/changes.yml`.
    - Put unresolved portable contradictions in `portable/crossrefs/conflicts.yml`.
    - Put project/code/local contradictions in `project/crossrefs/conflicts.yml`.
 
-5. Add cross references carefully.
+6. Add cross references carefully.
    - Reusable hardware-software relationships go to `portable/crossrefs/candidate-links.yml`.
    - Any relation involving code, project paths, current board schematics, local configuration, or board variants goes to `project/crossrefs/candidate-links.yml`.
    - Use `scripts/validate_crossrefs.py` before trusting existing links.
    - Promote only after repeated source validation and explicit user approval. See `references/crossref-lifecycle.md`.
 
-6. Maintain feature knowledge.
+7. Maintain feature knowledge.
    - When the user asks for a function-oriented path, create or update `portable/features/<feature-id>.md` or `project/features/<feature-id>.md` based on portability.
    - Include only verified or clearly labeled candidate knowledge.
    - Use `references/feature-doc-template.md`.
 
-7. Maintain lessons.
+8. Maintain lessons.
    - Put portable lessons in `portable/lessons/` only when they do not depend on code paths or project-specific board details.
    - Put project lessons in `project/lessons/` when they mention local configuration, code, board wiring, or debugging process.
    - Use `references/lesson-template.md`.

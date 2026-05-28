@@ -6,6 +6,8 @@ Cross references are the controlled self-evolution mechanism.
 
 `candidate`: plausible relation found during a query.
 
+Bootstrap candidates may be generated from existing indexes during first curator use. They are search hints, not conclusions.
+
 `needs-review`: relation has evidence but conflicts or missing details remain.
 
 `verified`: relation is source-backed, rechecked, and explicitly approved by the user.

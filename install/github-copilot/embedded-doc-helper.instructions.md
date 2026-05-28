@@ -10,7 +10,7 @@ Use this workflow for vehicle embedded document questions involving portable har
 
 If `.vehicle-embedded-docs/` does not exist, recommend creating it before doing broad document analysis. It should contain factual indexes for source documents and must be ignored by Git.
 
-If `.vehicle-embedded-docs/` exists, read it first and avoid repeating expensive full-document scans. Treat `portable/` as reusable hardware/software knowledge copied between projects, and `project/` as current-project schematics, code context, local links, features, and lessons.
+If `.vehicle-embedded-docs/` exists, read it first and avoid repeating expensive full-document scans. Treat `portable/` as reusable hardware/software knowledge copied between projects, and `project/` as current-project schematics, code context, local links, features, and lessons. On first use, generate candidate cross references from existing indexes before treating the memory as complete.
 
 ## Answering Behavior
 
