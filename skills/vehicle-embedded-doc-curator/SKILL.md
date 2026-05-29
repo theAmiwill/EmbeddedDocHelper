@@ -34,6 +34,7 @@ Use `scripts/find_memory_dir.py <start-path>` to locate the memory directory.
 1. Bootstrap candidate cross references on first use.
    - If `audit/crossref-bootstrap.yml` is absent, or both portable/project crossref files are empty, generate initial `candidate` cross references from existing indexes before answering.
    - Prefer `scripts/bootstrap_crossrefs.py <memory-dir>` for a deterministic first pass.
+   - Include software-internal candidates when AUTOSAR extracts, vendor requirements, MCAL manuals, EB/DaVinci/tool guides, DemoApp guides, or build/install guides share modules or software-stack context.
    - Review generated candidates for obvious false positives; keep them as unverified and low/medium confidence.
    - See `references/bootstrap-crossrefs.md`.
 

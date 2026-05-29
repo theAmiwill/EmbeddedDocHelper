@@ -43,6 +43,18 @@ Default to `source_class: software` and `authority_role: software_guide` for:
 
 Software manuals are usually `portable` when the same tool/vendor/version/module set is reused across projects.
 
+Use `software_subtype` to preserve useful relationships inside software sources:
+
+- `tool_guide`: EB Studio, DaVinci, tresos, configurator, or IDE/tool user/developer guides.
+- `autosar_standard`: AUTOSAR standard material or AUTOSAR requirement extracts.
+- `vendor_requirement`: vendor requirement extracts that are not AUTOSAR standard extracts.
+- `vendor_mcal_manual`: MCAL driver user manuals and module user manuals.
+- `build_install_guide`: build, installation, integration, or setup guides.
+- `demo_app_guide`: DemoApp or example application guides.
+- `software_general`: software source that does not fit a narrower subtype.
+
+Do not collapse these subtypes away. Curator may build candidate cross references between software subtypes, for example AUTOSAR requirement extract -> vendor requirement extract -> MCAL UM -> tool guide.
+
 ## Excel Types
 
 Use workbook/sheet names, headers, and key columns:

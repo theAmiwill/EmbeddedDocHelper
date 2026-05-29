@@ -7,6 +7,7 @@ Software sources explain how to operate tools and configure MCAL/BSW. They are g
 For each software manual or guide, record:
 
 - Tool/vendor/product/version.
+- `software_subtype` when it can be inferred.
 - AUTOSAR or vendor module names.
 - Configuration workflows.
 - Parameter reference sections.
@@ -23,6 +24,20 @@ For each software manual or guide, record:
 - AUTOSAR module references.
 - Vendor application notes that describe configuration steps.
 
+## Software Subtypes
+
+Prefer these subtype values:
+
+- `tool_guide`: EB Studio, DaVinci, tresos, configurator, or IDE/tool guides.
+- `autosar_standard`: AUTOSAR standard material or AUTOSAR requirement extracts.
+- `vendor_requirement`: vendor MCAL/driver requirement extracts.
+- `vendor_mcal_manual`: MCAL driver user manuals and module user manuals.
+- `build_install_guide`: build, installation, integration, or setup guides.
+- `demo_app_guide`: DemoApp or example application guides.
+- `software_general`: fallback for software manuals with unclear subtype.
+
+These subtypes are used by curator bootstrap to create software-to-software candidate cross references.
+
 ## Index Shape
 
 Use `portable/software/<package-id>/manuals/<manual-id>/outline.yml` for first-pass outlines.
@@ -33,6 +48,7 @@ Use `sections.yml` only after inspecting a chapter:
 - section_id: can-controller-configuration
   title: "CAN Controller Configuration"
   module: Can
+  software_subtype: vendor_mcal_manual
   pdf_page_start: 210
   pdf_page_end: 236
   authority_role: software_guide

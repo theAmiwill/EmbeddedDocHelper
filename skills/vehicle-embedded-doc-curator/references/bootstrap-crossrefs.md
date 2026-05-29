@@ -18,9 +18,19 @@ Use existing index files only. Do not reopen large PDFs or rescan full code proj
 Generate only `candidate` entries:
 
 - Portable candidates: relations between `portable/hardware/` and `portable/software/`.
+- Software-internal candidates: relations between reusable software subtypes such as AUTOSAR standard extracts, vendor requirement extracts, MCAL user manuals, EB/DaVinci/tool guides, DemoApp guides, and build/install guides.
 - Project candidates: any relation involving `project/`, code indexes, project schematics, local config, or board-specific evidence.
 
 Default confidence should be `low` unless the same specific module/peripheral identifier appears in both sources. Use `medium` for direct module terms such as `CAN0`, `SPI2`, `ADC`, `Port`, `Mcu`, or explicit matching section IDs.
+
+For software-internal bootstrap, prefer these candidate chains:
+
+- AUTOSAR standard or AUTOSAR requirement extract -> vendor requirement extract.
+- Vendor requirement extract -> MCAL user manual.
+- MCAL user manual -> EB/DaVinci/tool guide.
+- MCAL user manual -> DemoApp or build/install guide.
+
+If there is no specific module overlap but the subtype relation is obvious, generate only a low-confidence software-stack candidate.
 
 ## Output
 

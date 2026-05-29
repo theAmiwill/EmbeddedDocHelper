@@ -7,6 +7,7 @@ Cross references are the controlled self-evolution mechanism.
 `candidate`: plausible relation found during a query.
 
 Bootstrap candidates may be generated from existing indexes during first curator use. They are search hints, not conclusions.
+Bootstrap may include same-class software relations, such as AUTOSAR requirement extract -> vendor requirement extract -> MCAL user manual -> tool guide.
 
 `needs-review`: relation has evidence but conflicts or missing details remain.
 

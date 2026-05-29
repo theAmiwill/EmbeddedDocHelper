@@ -140,12 +140,14 @@ source_id: davinci-mcal-guide
 title: "DaVinci MCAL Configuration Guide"
 outline_status: partial
 authority_role: software_guide
+software_subtype: tool_guide
 sections:
   - section_id: can-configuration
     title: "CAN Configuration"
     pdf_page_start: 210
     pdf_page_end: 260
     modules: [Can, CanIf]
+    software_subtype: vendor_mcal_manual
     keywords: [controller, baudrate, hardware object]
 ```
 

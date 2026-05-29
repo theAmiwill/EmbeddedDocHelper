@@ -76,7 +76,7 @@ It also appends this line to the project `.gitignore`:
 .vehicle-embedded-docs/
 ```
 
-The second skill requires that directory to exist. On first use, it can generate initial candidate cross references from existing indexes so later questions have a relationship map to verify. It treats cross references as a lifecycle:
+The second skill requires that directory to exist. On first use, it can generate initial candidate cross references from existing indexes so later questions have a relationship map to verify. This includes software-internal links such as AUTOSAR extracts -> vendor requirements -> MCAL user manuals -> EB/DaVinci/tool guides. It treats cross references as a lifecycle:
 
 ```text
 candidate -> needs-review -> verified -> rejected

@@ -2,13 +2,15 @@
 import argparse
 import re
 from datetime import datetime, timezone
+from itertools import combinations
 from pathlib import Path
 
 
 INDEX_EXTENSIONS = {".yml", ".yaml", ".md", ".txt"}
 SKIP_PARTS = {"crossrefs", "audit", "features", "lessons"}
-GENERIC_LOW_CONFIDENCE = {"CLOCK", "RESET", "INTERRUPT", "PIN", "PINMUX", "POWER"}
+GENERIC_LOW_CONFIDENCE = {"CLOCK", "RESET", "INTERRUPT", "PIN", "PINMUX", "POWER", "SOFTWARE-STACK"}
 TERM_PATTERNS = [
+    r"\bWDG_17_AVWDT\b",
     r"\bCAN\d*\b",
     r"\bLIN\d*\b",
     r"\bSPI\d*\b",
@@ -23,6 +25,11 @@ TERM_PATTERNS = [
     r"\bICU\b",
     r"\bOCU\b",
     r"\bDMA\b",
+    r"\bBFX\b",
+    r"\bBMC\b",
+    r"\bCRC\b",
+    r"\bTINFRA\b",
+    r"\bRVLIB\b",
     r"\bCLOCK\b",
     r"\bRESET\b",
     r"\bINTERRUPT\b",
@@ -30,6 +37,26 @@ TERM_PATTERNS = [
     r"\bPIN\b",
     r"\bPOWER\b",
 ]
+
+SOFTWARE_SUBTYPE_ORDER = {
+    "autosar_standard": 10,
+    "vendor_requirement": 20,
+    "vendor_mcal_manual": 30,
+    "tool_guide": 40,
+    "build_install_guide": 50,
+    "demo_app_guide": 60,
+    "software_general": 70,
+}
+
+SOFTWARE_PAIR_LABELS = {
+    frozenset({"autosar_standard", "vendor_requirement"}): "AUTOSAR requirement material and vendor requirement extract",
+    frozenset({"vendor_requirement", "vendor_mcal_manual"}): "vendor requirement extract and MCAL user manual",
+    frozenset({"vendor_mcal_manual", "tool_guide"}): "MCAL user manual and tool guide",
+    frozenset({"vendor_mcal_manual", "build_install_guide"}): "MCAL user manual and build/install guide",
+    frozenset({"vendor_mcal_manual", "demo_app_guide"}): "MCAL user manual and demo application guide",
+    frozenset({"tool_guide", "build_install_guide"}): "tool guide and build/install guide",
+    frozenset({"tool_guide", "demo_app_guide"}): "tool guide and demo application guide",
+}
 
 
 def now_utc() -> str:
@@ -45,29 +72,54 @@ def read_limited(path: Path, limit: int = 200_000) -> str:
     return text[:limit]
 
 
+def normalize_term(term: str) -> str:
+    term = term.upper()
+    if term == "ETHERNET":
+        return "ETH"
+    return term
+
+
 def terms_for(path: Path, text: str) -> set[str]:
     haystack = f"{path.as_posix()}\n{text}".upper()
     terms: set[str] = set()
     for pattern in TERM_PATTERNS:
         for match in re.finditer(pattern, haystack):
-            term = match.group(0)
-            if term == "ETHERNET":
-                term = "ETH"
-            terms.add(term)
+            terms.add(normalize_term(match.group(0)))
     return terms
 
 
-def classify(rel_path: str) -> tuple[str, str] | None:
+def software_subtype(rel_path: str, text: str) -> str | None:
+    haystack = f"{rel_path}\n{text}".upper()
+    if "BUILD_INSTALLATION" in haystack or "BUILD-INSTALLATION" in haystack or "BUILD INSTALLATION" in haystack or "INSTALLATION" in haystack:
+        return "build_install_guide"
+    if "DEMOAPP" in haystack or "DEMO_APP" in haystack or "DEMO APP" in haystack or "DEMO APPLICATION" in haystack:
+        return "demo_app_guide"
+    if "AUTOSAR" in haystack or re.search(r"R\d{2}[-_ ]?\d{2}", haystack):
+        return "autosar_standard"
+    if "REQ_EXTRACT" in haystack or "REQ-EXTRACT" in haystack or "REQ EXTRACT" in haystack:
+        return "vendor_requirement"
+    if "MCAL" in haystack or "DRIVERS_UM" in haystack or "_UM_" in haystack or "_UM." in haystack or "USER MANUAL" in haystack or "MODULE USER MANUAL" in haystack:
+        return "vendor_mcal_manual"
+    if re.search(r"\b(EB|STUDIO|DAVINCI|TRESOS|CONFIGURATOR)\b", haystack) or "CONFIGURATION TOOL" in haystack:
+        return "tool_guide"
+    if re.search(r"\b(BSW|RTE|AUTOSAR|MCAL|CONFIGURATION|GENERATED FILES?)\b", haystack):
+        return "software_general"
+    return None
+
+
+def classify(rel_path: str, text: str) -> tuple[str, str, str | None] | None:
     if rel_path.startswith("portable/hardware/"):
-        return ("portable", "hardware")
+        return ("portable", "hardware", None)
     if rel_path.startswith("portable/software/"):
-        return ("portable", "software")
+        return ("portable", "software", software_subtype(rel_path, text) or "software_general")
     if rel_path.startswith("project/code/"):
-        return ("project", "code")
-    if rel_path.startswith("project/schematics/"):
-        return ("project", "hardware")
-    if rel_path.startswith("schematics/"):
-        return ("project", "hardware")
+        return ("project", "code", None)
+    if rel_path.startswith("project/schematics/") or rel_path.startswith("schematics/"):
+        return ("project", "hardware", None)
+    if rel_path.startswith("manuals/"):
+        subtype = software_subtype(rel_path, text)
+        if subtype:
+            return ("portable", "software", subtype)
     return None
 
 
@@ -79,19 +131,20 @@ def iter_artifacts(memory: Path) -> list[dict]:
         rel_path = rel(path, memory)
         if any(part in SKIP_PARTS for part in Path(rel_path).parts):
             continue
-        classified = classify(rel_path)
+        text = read_limited(path)
+        classified = classify(rel_path, text)
         if classified is None:
             continue
-        text = read_limited(path)
         terms = terms_for(path, text)
-        if not terms:
+        scope, source_class, subtype = classified
+        if not terms and source_class != "software":
             continue
-        scope, source_class = classified
         artifacts.append(
             {
                 "path": rel_path,
                 "scope": scope,
                 "class": source_class,
+                "subtype": subtype,
                 "terms": terms,
             }
         )
@@ -147,9 +200,16 @@ def slug(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
 
 
-def confidence(term: str) -> str:
+def source_slug(path: str) -> str:
+    stem = Path(path).stem
+    return slug(stem)[-40:]
+
+
+def confidence(term: str, subtype_pair: bool = False) -> str:
     if term in GENERIC_LOW_CONFIDENCE:
         return "low"
+    if subtype_pair:
+        return "medium"
     return "medium"
 
 
@@ -169,6 +229,48 @@ def portable_entry(term: str, hardware: dict, software: dict) -> str:
             "  evidence:",
             evidence(hardware["path"], term),
             evidence(software["path"], term),
+            '  created_from_query: "Initial curator crossref bootstrap"',
+            "  generated_by: bootstrap_crossrefs.py",
+            "  verified_by_user: false",
+        ]
+    )
+
+
+def software_pair_label(left: dict, right: dict) -> str | None:
+    return SOFTWARE_PAIR_LABELS.get(frozenset({left["subtype"], right["subtype"]}))
+
+
+def software_pair_terms(left: dict, right: dict) -> list[str]:
+    common = sorted(left["terms"] & right["terms"])
+    if common:
+        return common
+    left_specific = left["terms"] - GENERIC_LOW_CONFIDENCE
+    right_specific = right["terms"] - GENERIC_LOW_CONFIDENCE
+    if software_pair_label(left, right) and not (left_specific and right_specific):
+        return ["SOFTWARE-STACK"]
+    return []
+
+
+def software_entry(term: str, left: dict, right: dict) -> str:
+    left_subtype = left["subtype"] or "software_general"
+    right_subtype = right["subtype"] or "software_general"
+    ordered = sorted([left, right], key=lambda item: SOFTWARE_SUBTYPE_ORDER.get(item["subtype"] or "software_general", 99))
+    left, right = ordered[0], ordered[1]
+    label = software_pair_label(left, right) or f"{left_subtype} and {right_subtype}"
+    term_slug = "stack" if term == "SOFTWARE-STACK" else slug(term)
+    entry_id = f"bootstrap-portable-{term_slug}-software-{slug(left['subtype'] or 'software')}-{slug(right['subtype'] or 'software')}-{source_slug(left['path'])}-{source_slug(right['path'])}"
+    relation_term = "the software stack" if term == "SOFTWARE-STACK" else term
+    return "\n".join(
+        [
+            f"- id: {entry_id}",
+            "  status: candidate",
+            "  portability: portable",
+            f'  relation: "{relation_term} appears across {label}; verify how these software documents constrain or explain each other."',
+            f"  confidence: {confidence(term, subtype_pair=True)}",
+            "  evidence:",
+            evidence(left["path"], term),
+            evidence(right["path"], term),
+            f"  software_subtypes: [{left['subtype']}, {right['subtype']}]",
             '  created_from_query: "Initial curator crossref bootstrap"',
             "  generated_by: bootstrap_crossrefs.py",
             "  verified_by_user: false",
@@ -209,6 +311,26 @@ def first_by_term(artifacts: list[dict], scope: str | None = None, source_class:
     return result
 
 
+def software_entries(artifacts: list[dict], existing: set[str], max_entries: int) -> list[str]:
+    software = [item for item in artifacts if item["scope"] == "portable" and item["class"] == "software"]
+    entries: list[str] = []
+    seen: set[str] = set()
+    for left, right in combinations(software, 2):
+        if left["path"] == right["path"]:
+            continue
+        if not software_pair_label(left, right) and not (left["terms"] & right["terms"]):
+            continue
+        for term in software_pair_terms(left, right):
+            entry = software_entry(term, left, right)
+            entry_id = scalar(entry, "id")
+            if entry_id not in existing and entry_id not in seen:
+                entries.append(entry)
+                seen.add(entry_id)
+            if len(entries) >= max_entries:
+                return entries
+    return entries
+
+
 def build_entries(memory: Path, max_entries: int) -> tuple[list[str], list[str]]:
     artifacts = iter_artifacts(memory)
     portable_hardware = first_by_term(artifacts, "portable", "hardware")
@@ -224,6 +346,8 @@ def build_entries(memory: Path, max_entries: int) -> tuple[list[str], list[str]]
         memory / "portable" / "crossrefs" / "verified-links.yml",
         memory / "project" / "crossrefs" / "candidate-links.yml",
         memory / "project" / "crossrefs" / "verified-links.yml",
+        memory / "crossrefs" / "candidate-links.yml",
+        memory / "crossrefs" / "verified-links.yml",
     )
 
     for term in sorted(set(portable_hardware) & set(portable_software)):
@@ -232,6 +356,9 @@ def build_entries(memory: Path, max_entries: int) -> tuple[list[str], list[str]]
             portable_entries.append(entry)
         if len(portable_entries) >= max_entries:
             break
+
+    remaining_portable = max(max_entries - len(portable_entries), 0)
+    portable_entries.extend(software_entries(artifacts, existing, remaining_portable))
 
     project_pairs: list[tuple[str, dict, dict]] = []
     for term in sorted(set(project_code) & set(portable_hardware)):
@@ -268,6 +395,7 @@ def write_audit(memory: Path, portable_count: int, project_count: int) -> None:
                 "generated_by: bootstrap_crossrefs.py",
                 f"portable_candidates_added: {portable_count}",
                 f"project_candidates_added: {project_count}",
+                "software_software_candidates_enabled: true",
                 'policy: "candidate-only; generated from existing indexes; requires source recheck and explicit user approval before promotion"',
                 "",
             ]
