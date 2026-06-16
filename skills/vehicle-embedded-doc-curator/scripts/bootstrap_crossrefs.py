@@ -89,17 +89,30 @@ def terms_for(path: Path, text: str) -> set[str]:
 
 
 def software_subtype(rel_path: str, text: str) -> str | None:
-    haystack = f"{rel_path}\n{text}".upper()
+    name = rel_path.upper()
+    haystack = f"{name}\n{text}".upper()
+    if "BUILD_INSTALLATION" in name or "BUILD-INSTALLATION" in name or "BUILD INSTALLATION" in name or "INSTALLATION" in name:
+        return "build_install_guide"
+    if "DEMOAPP" in name or "DEMO_APP" in name or "DEMO APP" in name or "DEMO APPLICATION" in name:
+        return "demo_app_guide"
+    if "AUTOSAR" in name or re.search(r"R\d{2}[-_ ]?\d{2}", name):
+        return "autosar_standard"
+    if "REQ_EXTRACT" in name or "REQ-EXTRACT" in name or "REQ EXTRACT" in name:
+        return "vendor_requirement"
+    if "MCAL" in name or "DRIVERS_UM" in name or "_UM_" in name or "_UM." in name or "USER MANUAL" in name or "MODULE USER MANUAL" in name:
+        return "vendor_mcal_manual"
+    if re.search(r"\b(EB|STUDIO|DAVINCI|TRESOS|CONFIGURATOR)\b", name) or "CONFIGURATION TOOL" in name:
+        return "tool_guide"
     if "BUILD_INSTALLATION" in haystack or "BUILD-INSTALLATION" in haystack or "BUILD INSTALLATION" in haystack or "INSTALLATION" in haystack:
         return "build_install_guide"
     if "DEMOAPP" in haystack or "DEMO_APP" in haystack or "DEMO APP" in haystack or "DEMO APPLICATION" in haystack:
         return "demo_app_guide"
-    if "AUTOSAR" in haystack or re.search(r"R\d{2}[-_ ]?\d{2}", haystack):
-        return "autosar_standard"
     if "REQ_EXTRACT" in haystack or "REQ-EXTRACT" in haystack or "REQ EXTRACT" in haystack:
         return "vendor_requirement"
     if "MCAL" in haystack or "DRIVERS_UM" in haystack or "_UM_" in haystack or "_UM." in haystack or "USER MANUAL" in haystack or "MODULE USER MANUAL" in haystack:
         return "vendor_mcal_manual"
+    if "AUTOSAR" in haystack or re.search(r"R\d{2}[-_ ]?\d{2}", haystack):
+        return "autosar_standard"
     if re.search(r"\b(EB|STUDIO|DAVINCI|TRESOS|CONFIGURATOR)\b", haystack) or "CONFIGURATION TOOL" in haystack:
         return "tool_guide"
     if re.search(r"\b(BSW|RTE|AUTOSAR|MCAL|CONFIGURATION|GENERATED FILES?)\b", haystack):
@@ -201,8 +214,9 @@ def slug(value: str) -> str:
 
 
 def source_slug(path: str) -> str:
-    stem = Path(path).stem
-    return slug(stem)[-40:]
+    parts = [part for part in Path(path).parts if part.lower() not in {"outline.yml", "sections.yml", "catalog.yml", "manuals"}]
+    value = "-".join(parts[-3:]) if parts else Path(path).stem
+    return slug(value)[-60:]
 
 
 def confidence(term: str, subtype_pair: bool = False) -> str:
@@ -315,12 +329,20 @@ def software_entries(artifacts: list[dict], existing: set[str], max_entries: int
     software = [item for item in artifacts if item["scope"] == "portable" and item["class"] == "software"]
     entries: list[str] = []
     seen: set[str] = set()
+    seen_stack_pairs: set[frozenset[str]] = set()
     for left, right in combinations(software, 2):
         if left["path"] == right["path"]:
+            continue
+        if left["subtype"] == right["subtype"]:
             continue
         if not software_pair_label(left, right) and not (left["terms"] & right["terms"]):
             continue
         for term in software_pair_terms(left, right):
+            if term == "SOFTWARE-STACK":
+                stack_pair = frozenset({left["subtype"] or "software_general", right["subtype"] or "software_general"})
+                if stack_pair in seen_stack_pairs:
+                    continue
+                seen_stack_pairs.add(stack_pair)
             entry = software_entry(term, left, right)
             entry_id = scalar(entry, "id")
             if entry_id not in existing and entry_id not in seen:

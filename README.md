@@ -2,7 +2,7 @@
 
 EmbeddedDocHelper packages two Agent Skills for vehicle embedded engineering document work:
 
-- `vehicle-embedded-doc-indexer`: creates or refreshes layered `.vehicle-embedded-docs/` memory from portable hardware/software documents and explicit project code sources.
+- `vehicle-embedded-doc-indexer`: creates or refreshes layered `.vehicle-embedded-docs/` memory from portable hardware/software documents and explicit project code sources, including non-empty first-pass source indexes.
 - `vehicle-embedded-doc-curator`: reuses `.vehicle-embedded-docs/` to bootstrap first-use candidate links, answer engineering questions, correct stale indexes, maintain evidence-backed portable/project cross references, and write verified feature or lesson notes.
 
 The default workflow is engineering-location-first: find the exact page/sheet/table, cite evidence, then add a short beginner explanation.
@@ -69,6 +69,8 @@ The first skill creates a project-local memory directory:
 ```
 
 `portable/` is meant to be copied between projects when the same chip or software stack is reused. `project/` holds current-project schematics, code context, local cross references, features, and lessons.
+
+The indexer runs a lightweight first pass over supplied source files so manuals and schematics get metadata/outline placeholders even when no PDF parser is available. These entries are marked `metadata-only` until a later targeted deep read confirms chapter details.
 
 It also appends this line to the project `.gitignore`:
 

@@ -153,6 +153,17 @@ sections:
 
 Use denser `sections.yml` only after inspecting a chapter.
 
+First-pass indexes may be metadata-only when no PDF parser is available:
+
+```yaml
+source_id: aurix-rc1-um-dio
+source_class: software
+type: software_manual
+software_subtype: vendor_mcal_manual
+outline_status: metadata-only
+next_indexing_step: "Extract PDF bookmarks/table of contents or inspect relevant chapters before using as verified evidence."
+```
+
 ## Project Schematics
 
 `project/schematics/<schematic-id>/sheets.yml`:

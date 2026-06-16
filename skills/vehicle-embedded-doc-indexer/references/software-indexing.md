@@ -2,6 +2,8 @@
 
 Software sources explain how to operate tools and configure MCAL/BSW. They are guides, not hardware correctness evidence.
 
+Run `scripts/index_sources.py <project-root> <software-manual-folder>` before manual deep reading. The script creates non-empty source-level indexes and records `software_subtype` when it can infer it from filenames or text snippets.
+
 ## What To Capture
 
 For each software manual or guide, record:

@@ -50,10 +50,12 @@ Split indexes by portability:
 5. Inventory new or missing sources.
    - Record file path, type, size, modified time, hash, page/sheet count when practical.
    - Use `scripts/hash_sources.py` for stable file fingerprints.
+   - Run `scripts/index_sources.py <project-root> <source-path>...` to create lightweight non-empty source indexes before any manual deep reading.
    - Classify sources by source class, source type, portability, and authority role.
    - See `references/source-detection.md` for classification rules.
 
 6. Index by source class and type.
+   - Always leave a source-level index file for every accepted source, even when only metadata and filename-derived classification are available.
    - Hardware schematics: index sheets/pages, module names, ICs, connectors, power domains, clocks, resets, buses, key nets, MCU pins, and test points. See `references/schematic-indexing.md`.
    - Hardware manuals: extract table of contents/bookmarks/intro and build chapter trees with page ranges; do not read huge manuals end-to-end. See `references/manual-indexing.md`.
    - Software manuals: index tool workflows, module chapters, configuration parameters, generated-file notes, and warnings. See `references/software-indexing.md`.
@@ -72,6 +74,7 @@ Split indexes by portability:
    - List sources indexed/refreshed/skipped.
    - List portable packages reused and why they matched.
    - Mention any OCR/scanned PDF limitations, missing attachments, ambiguous source types, or source/index conflicts.
+   - If deep extraction was not possible, explicitly report which index files are metadata-only and what must be inspected next.
    - Include next recommended queries.
 
 ## Required Directory Layout

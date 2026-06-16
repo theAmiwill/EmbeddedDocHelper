@@ -2,6 +2,8 @@
 
 Large chip manuals must be indexed hierarchically. Do not read them end-to-end on first pass.
 
+Run `scripts/index_sources.py <project-root> <manual-file-or-folder>` first so every manual has a non-empty metadata/outline placeholder. Then deepen only the relevant manuals.
+
 ## First Pass Order
 
 1. Extract PDF bookmarks if available.
