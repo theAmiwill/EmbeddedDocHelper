@@ -9,6 +9,12 @@ The default workflow is engineering-location-first: find the exact page/sheet/ta
 
 Because EmbeddedDocHelper depends heavily on PDF retrieval, installing Anthropic's official [`skills/pdf`](https://github.com/anthropics/skills/tree/main/skills/pdf) alongside these skills is recommended when your agent supports it.
 
+## License
+
+EmbeddedDocHelper is licensed under the GNU Affero General Public License v3.0 only (`AGPL-3.0-only`).
+
+If you use, modify, redistribute, or provide this project as part of a service, preserve the copyright notice, keep the original repository attribution, and comply with the AGPL-3.0-only terms. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
 ## Repository Layout
 
 ```text
