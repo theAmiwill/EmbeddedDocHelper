@@ -7,6 +7,8 @@ EmbeddedDocHelper packages two Agent Skills for vehicle embedded engineering doc
 
 The default workflow is engineering-location-first: find the exact page/sheet/table, cite evidence, then add a short beginner explanation.
 
+Because EmbeddedDocHelper depends heavily on PDF retrieval, installing Anthropic's official [`skills/pdf`](https://github.com/anthropics/skills/tree/main/skills/pdf) alongside these skills is recommended when your agent supports it.
+
 ## Repository Layout
 
 ```text
@@ -14,18 +16,20 @@ skills/
   vehicle-embedded-doc-indexer/
   vehicle-embedded-doc-curator/
 install/
+  agent-rules/
+    embedded-doc-helper.md
   codex.md
   claude-code.md
   kilo-code.md
   github-copilot.md
   github-copilot/
     copilot-instructions.md
-    embedded-doc-helper.instructions.md
 scripts/
   install-codex.ps1
   install-claude-code.ps1
   install-kilo-code.ps1
   install-github-copilot.ps1
+  install-project-rules.ps1
 ```
 
 ## Quick Install
@@ -38,12 +42,28 @@ From a cloned copy of this repository:
 .\scripts\install-kilo-code.ps1
 ```
 
+To install the skills and also add project-level rules:
+
+```powershell
+.\scripts\install-codex.ps1 -TargetProject C:\path\to\your\project
+.\scripts\install-claude-code.ps1 -TargetProject C:\path\to\your\project
+.\scripts\install-kilo-code.ps1 -TargetProject C:\path\to\your\project
+```
+
 On macOS/Linux:
 
 ```sh
 ./scripts/install-codex.sh
 ./scripts/install-claude-code.sh
 ./scripts/install-kilo-code.sh
+```
+
+Pass the target project path to also install project-level rules:
+
+```sh
+./scripts/install-codex.sh /path/to/your/project
+./scripts/install-claude-code.sh /path/to/your/project
+./scripts/install-kilo-code.sh /path/to/your/project
 ```
 
 For GitHub Copilot repository instructions:
@@ -94,6 +114,15 @@ Authority order is fixed: hardware documents are the correctness basis, software
 - [Claude Code](install/claude-code.md)
 - [Kilo Code](install/kilo-code.md)
 - [GitHub Copilot](install/github-copilot.md)
+
+Project rule installers write:
+
+```text
+Codex:       AGENTS.md
+Claude Code: CLAUDE.md
+Kilo Code:   .kilocode/rules/embedded-doc-helper.md
+Copilot:     .github/copilot-instructions.md
+```
 
 ## Validation
 

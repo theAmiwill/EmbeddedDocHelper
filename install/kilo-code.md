@@ -32,6 +32,24 @@ cp -R ./skills/vehicle-embedded-doc-curator ~/.kilo/skills/
 
 Kilo Code also supports project skills under `.kilo/skills/`.
 
+Because these skills depend heavily on PDF retrieval, also install Anthropic's official `skills/pdf` when your Kilo Code environment supports third-party skills.
+
+## Project Rules
+
+To also install EmbeddedDocHelper constraints for the target project:
+
+```powershell
+.\scripts\install-kilo-code.ps1 -TargetProject C:\path\to\your\project
+```
+
+macOS/Linux:
+
+```sh
+./scripts/install-kilo-code.sh /path/to/your/project
+```
+
+This writes `.kilocode/rules/embedded-doc-helper.md`. If your Kilo Code version uses a different project rules directory, copy the generated content there.
+
 ## Suggested Use
 
 Ask Kilo Code to use the indexer first:

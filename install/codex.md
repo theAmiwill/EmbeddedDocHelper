@@ -2,7 +2,7 @@
 
 ## Global Install
 
-Copy both skill directories into your Codex skills directory:
+Copy the skill directories into your Codex skills directory:
 
 ```powershell
 .\scripts\install-codex.ps1
@@ -31,6 +31,24 @@ cp -R ./skills/vehicle-embedded-doc-curator ~/.codex/skills/
 ```
 
 Restart Codex if the skills do not appear immediately.
+
+Because these skills depend heavily on PDF retrieval, also install Anthropic's official `skills/pdf` when your Codex environment supports third-party skills.
+
+## Project Rules
+
+To also append EmbeddedDocHelper constraints to a project's `AGENTS.md`:
+
+```powershell
+.\scripts\install-codex.ps1 -TargetProject C:\path\to\your\project
+```
+
+macOS/Linux:
+
+```sh
+./scripts/install-codex.sh /path/to/your/project
+```
+
+The appended section tells Codex to use `vehicle-embedded-doc-indexer`, `vehicle-embedded-doc-curator`, and an installed PDF skill when PDF inspection is needed, while preserving the hardware/software/code authority order.
 
 ## Suggested Use
 

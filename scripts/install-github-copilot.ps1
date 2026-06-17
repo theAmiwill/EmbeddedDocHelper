@@ -7,15 +7,12 @@ param(
 $ErrorActionPreference = 'Stop'
 $target = Resolve-Path $TargetProject
 $githubDir = Join-Path $target '.github'
-$instructionsDir = Join-Path $githubDir 'instructions'
 $repoInstructions = Join-Path $githubDir 'copilot-instructions.md'
-$pathInstructions = Join-Path $instructionsDir 'embedded-doc-helper.instructions.md'
 $templateRoot = Join-Path $SourceRoot 'install\github-copilot'
 
 New-Item -ItemType Directory -Force $githubDir | Out-Null
-New-Item -ItemType Directory -Force $instructionsDir | Out-Null
 
-$section = Get-Content -Raw (Join-Path $templateRoot 'copilot-instructions.md')
+$section = (Get-Content -Raw (Join-Path $SourceRoot 'install\agent-rules\embedded-doc-helper.md')) + "`n" + (Get-Content -Raw (Join-Path $templateRoot 'copilot-instructions.md'))
 $markerStart = '<!-- EmbeddedDocHelper start -->'
 $markerEnd = '<!-- EmbeddedDocHelper end -->'
 $markedSection = "$markerStart`n$section`n$markerEnd`n"
@@ -33,6 +30,3 @@ if (Test-Path $repoInstructions) {
   Set-Content -Path $repoInstructions -Value $markedSection -Encoding UTF8
   Write-Host "Created $repoInstructions"
 }
-
-Copy-Item -Path (Join-Path $templateRoot 'embedded-doc-helper.instructions.md') -Destination $pathInstructions -Force
-Write-Host "Installed path-specific instructions -> $pathInstructions"

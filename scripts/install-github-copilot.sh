@@ -9,14 +9,12 @@ fi
 TARGET_PROJECT="$(CDPATH= cd -- "$1" && pwd)"
 SOURCE_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 GITHUB_DIR="$TARGET_PROJECT/.github"
-INSTRUCTIONS_DIR="$GITHUB_DIR/instructions"
 REPO_INSTRUCTIONS="$GITHUB_DIR/copilot-instructions.md"
-PATH_INSTRUCTIONS="$INSTRUCTIONS_DIR/embedded-doc-helper.instructions.md"
 TEMPLATE_ROOT="$SOURCE_ROOT/install/github-copilot"
 MARKER_START="<!-- EmbeddedDocHelper start -->"
 MARKER_END="<!-- EmbeddedDocHelper end -->"
 
-mkdir -p "$INSTRUCTIONS_DIR"
+mkdir -p "$GITHUB_DIR"
 
 if [ -f "$REPO_INSTRUCTIONS" ]; then
   if grep -q "$MARKER_START" "$REPO_INSTRUCTIONS"; then
@@ -24,6 +22,8 @@ if [ -f "$REPO_INSTRUCTIONS" ]; then
   else
     {
       printf '\n%s\n' "$MARKER_START"
+      cat "$SOURCE_ROOT/install/agent-rules/embedded-doc-helper.md"
+      printf '\n'
       cat "$TEMPLATE_ROOT/copilot-instructions.md"
       printf '\n%s\n' "$MARKER_END"
     } >> "$REPO_INSTRUCTIONS"
@@ -32,11 +32,10 @@ if [ -f "$REPO_INSTRUCTIONS" ]; then
 else
   {
     printf '%s\n' "$MARKER_START"
+    cat "$SOURCE_ROOT/install/agent-rules/embedded-doc-helper.md"
+    printf '\n'
     cat "$TEMPLATE_ROOT/copilot-instructions.md"
     printf '\n%s\n' "$MARKER_END"
   } > "$REPO_INSTRUCTIONS"
   echo "Created $REPO_INSTRUCTIONS"
 fi
-
-cp "$TEMPLATE_ROOT/embedded-doc-helper.instructions.md" "$PATH_INSTRUCTIONS"
-echo "Installed path-specific instructions -> $PATH_INSTRUCTIONS"

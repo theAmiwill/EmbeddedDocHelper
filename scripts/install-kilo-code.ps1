@@ -1,6 +1,7 @@
 param(
   [string]$SourceRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path,
-  [string]$Destination = (Join-Path $HOME '.kilo\skills')
+  [string]$Destination = (Join-Path $HOME '.kilo\skills'),
+  [string]$TargetProject
 )
 
 $ErrorActionPreference = 'Stop'
@@ -14,4 +15,8 @@ foreach ($skill in $skills) {
   }
   Copy-Item -Path $source -Destination $Destination -Recurse -Force
   Write-Host "Installed $skill -> $Destination"
+}
+
+if ($TargetProject) {
+  & (Join-Path $SourceRoot 'scripts\install-project-rules.ps1') -Agent kilo-code -TargetProject $TargetProject -SourceRoot $SourceRoot
 }

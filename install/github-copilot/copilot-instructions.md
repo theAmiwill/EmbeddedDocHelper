@@ -6,6 +6,7 @@ When asked about schematics, chip manuals, datasheets, reference manuals, Excel 
 
 - Prefer source-backed answers over memory or guesses.
 - Use `.vehicle-embedded-docs/` as the project-local document memory when it exists.
+- If PDF retrieval is weak, ask the user to install or use a reliable PDF extraction capability such as Anthropic's official `skills/pdf`; keep PDF-derived indexes `metadata-only` until source text is reliable.
 - Treat `.vehicle-embedded-docs/portable/` as reusable hardware/software knowledge and `.vehicle-embedded-docs/project/` as project schematics, code context, local links, features, and lessons.
 - On first use, create candidate cross references from existing indexes before relying on the memory as complete.
 - Include same-class software candidates when EB/DaVinci/tool guides, MCAL manuals, AUTOSAR standards, and vendor requirement extracts share modules or software-stack context.

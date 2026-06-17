@@ -18,10 +18,11 @@ This creates or updates:
 
 ```text
 .github/copilot-instructions.md
-.github/instructions/embedded-doc-helper.instructions.md
 ```
 
-The repository-wide file gives Copilot broad guidance. The path-specific instruction file applies the EmbeddedDocHelper workflow across the repository, including the portable/project split and the hardware/software/code authority model.
+The repository-wide file gives Copilot the EmbeddedDocHelper workflow, including the portable/project split and the hardware/software/code authority model.
+
+Copilot does not necessarily execute local Agent Skills. The installed instructions therefore tell it to follow the same workflow explicitly and ask for a reliable PDF extraction capability when native PDF retrieval is weak.
 
 ## Manual Install
 
@@ -35,18 +36,6 @@ to:
 
 ```text
 .github/copilot-instructions.md
-```
-
-Copy:
-
-```text
-install/github-copilot/embedded-doc-helper.instructions.md
-```
-
-to:
-
-```text
-.github/instructions/embedded-doc-helper.instructions.md
 ```
 
 If your target project already has `.github/copilot-instructions.md`, merge the EmbeddedDocHelper section instead of overwriting the file.
